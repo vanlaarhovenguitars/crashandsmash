@@ -52,8 +52,13 @@ the export steps.
 
 ## Roadmap (beyond this prototype)
 
-- [x] Stage 1 playable prototype
+- [x] Stage 1 playable prototype (2D lane defense)
 - [x] Stage progression 1 → 2 → 3 with scaling difficulty (win advances; lose resets)
+- [x] 3D Arena mode — walk-around shooter (Garden Warfare–style) with auto-aim, touch
+      joystick, robots, health, and the same stage rules. Now the default scene.
+- [ ] 3D: real character/robot models + animations (free rigged characters from Mixamo/Kenney)
+- [ ] 3D: manual aim option (twin-stick / gamepad right stick) for older players
+- [ ] 3D: more enemy types, obstacles, pickups, and bigger levels
 - [ ] Main menu + character-select screen
 - [ ] Per-stage enemy variety (more than just the Robot)
 - [ ] Real art & sound to replace placeholders

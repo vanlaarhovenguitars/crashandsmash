@@ -1,11 +1,32 @@
 # Crash and Smash
 
-A *Plants vs. Zombies*–style lane defense game, reskinned with **Mr. Beast toys &
-creatures** defending against advancing **robots**. Built in **Godot 4** so one codebase
-can run on the family TV (NVIDIA Shield / Android TV), tablets, and phones.
+A kids' action game built in **Godot 4**, running from one codebase on the family TV
+(NVIDIA Shield / Android TV), tablets, and phones. Placeholder shapes for now, real gameplay.
 
-> This is the **Stage 1 playable prototype** — placeholder art, real gameplay. See
-> [`DESIGN.md`](DESIGN.md) for the full design (from the recording with Zane) and the roadmap.
+There are **two modes** in the repo:
+
+- **🕹️ 3D Arena (current default)** — a walk-around 3D shooter (Garden Warfare–style): run
+  around an arena, robots chase you, and your hero auto-aims and shoots them. Defeat 3 to
+  clear Stage 1. This is what the main scene / phone link launches.
+- **🌱 2D Lane Defense** — the original *Plants vs. Zombies*–style game: place toys/creatures
+  on lanes to stop advancing robots. Still in the repo at `scenes/Main.tscn`.
+
+> See [`DESIGN.md`](DESIGN.md) for the full design (from the recording with Zane) and roadmap.
+
+## How to play the 3D Arena
+- **Move:** WASD / left stick / left-side touch joystick (drag anywhere on the left half).
+- **Shooting is automatic** — your hero locks onto the nearest robot and fires. Just steer!
+- **Goal:** defeat 3 robots to clear Stage 1 (it gets harder each stage; Stage 3 is endless).
+- Win/lose, then **tap / Enter / gamepad A** to continue.
+
+## Play it (on your computer)
+
+1. Download **Godot 4.3 or newer** (the standard, non-.NET build): https://godotengine.org/download
+2. Launch Godot → **Import** → pick this folder's `project.godot` → **Open**.
+3. Press **Play** (the ▶ button, top-right) or **F5**. (To try the 2D mode instead, open
+   `scenes/Main.tscn` and press **Play Current Scene** / F6.)
+
+### How to play the 2D Lane Defense mode
 
 ## Play it (on your computer)
 
