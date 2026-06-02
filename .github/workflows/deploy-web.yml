@@ -32,6 +32,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Pages (auto-enables Pages on first run)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - name: Cache export templates
         id: tpl-cache
         uses: actions/cache@v4
