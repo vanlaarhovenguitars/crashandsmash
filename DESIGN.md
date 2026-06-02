@@ -52,12 +52,19 @@ the export steps.
 
 ## Roadmap (beyond this prototype)
 
-- [ ] Stage 1 playable prototype ← **this milestone**
+- [x] Stage 1 playable prototype
+- [x] Stage progression 1 → 2 → 3 with scaling difficulty (win advances; lose resets)
 - [ ] Main menu + character-select screen
-- [ ] Stage 2 and Stage 3 (endless)
+- [ ] Per-stage enemy variety (more than just the Robot)
 - [ ] Real art & sound to replace placeholders
-- [ ] Save/restore progress between stages (the `GameState` autoload is the hook for this)
+- [ ] Persist progress so closing the app remembers your stage
 - [ ] Produce and sign the Android APK; test on the Shield with a controller
+
+### How progression works now
+Winning a finite stage advances `GameState.current_stage`; the next load of the stage
+scene reads it and scales spawn rate + robot HP/speed, and reads the new kill target from
+`StageRules`. Stage 3 is endless (play until a robot reaches the base). Losing resets to
+Stage 1. All of this is covered by `tests/integration_test.gd`.
 
 ## A note on the "Mr. Beast" theme
 

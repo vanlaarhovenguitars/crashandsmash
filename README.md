@@ -14,7 +14,9 @@ can run on the family TV (NVIDIA Shield / Android TV), tablets, and phones.
 3. Press **Play** (the ▶ button, top-right) or **F5**.
 
 ### How to play
-- Goal: **defeat 3 robots** before any robot reaches your **BASE** on the left.
+- Goal: **defeat 3 robots** (Stage 1) before any robot reaches your **BASE** on the left.
+- Win a stage to advance: **Stage 1 → 2 → 3**, getting harder each time (Stage 3 is endless).
+  Win/lose, then press **Enter / A** to continue (or restart from Stage 1 after a loss).
 - **Pick a unit:** click a button in the top bar, press number keys **1–4**, or use the
   gamepad **shoulder buttons**.
 - **Place it:** move the highlighted cursor with **arrow keys / d-pad / left stick**, then
@@ -31,13 +33,15 @@ can run on the family TV (NVIDIA Shield / Android TV), tablets, and phones.
 
 ## Run the logic tests
 
-The core rules (stage win conditions, economy, combat math) have headless tests:
+Two headless suites — pure-logic unit tests and an integration test that drives the real
+Stage scene (placing, combat, winning, advancing, losing):
 
 ```bash
-godot --headless --script res://tests/run_tests.gd
+godot --headless --script res://tests/run_tests.gd          # logic units
+godot --headless --script res://tests/integration_test.gd   # full gameplay loop
 ```
 
-Prints `PASS:`/`FAIL:` per check and exits non-zero if anything fails.
+Each prints `PASS:`/`FAIL:` per check and exits non-zero if anything fails.
 
 ## Next: get it on the NVIDIA Shield (Android TV)
 

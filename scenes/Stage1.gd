@@ -22,12 +22,14 @@ const FIELD_LEFT := 220.0
 const FIELD_TOP := 165.0
 const FIELD_RIGHT := 1860.0
 const FIELD_BOTTOM := 1045.0
-const SPAWN_INTERVAL := 6.0
-const MAX_SPAWNS := 8
+const BASE_SPAWN_INTERVAL := 6.0
 
 var cell_w: float
 var cell_h: float
 var stage_number := 1
+var spawn_interval := BASE_SPAWN_INTERVAL
+var max_spawns := 6
+var robot_def: Dictionary
 var kills := 0
 var spawned := 0
 var economy
@@ -37,6 +39,7 @@ var selected_index := 0   # index into Units.DEFENDERS
 var cursor_row := 2
 var cursor_col := 4
 var game_over := false
+var _win_pending := false
 
 var _hud
 var _cursor: ColorRect
@@ -52,6 +55,7 @@ func _ready() -> void:
 			row_cells.append(null)
 		grid.append(row_cells)
 	economy = EconomyClass.new(75)
+	_configure_for_stage()
 
 	_build_field()
 	_build_cursor()
@@ -61,7 +65,7 @@ func _ready() -> void:
 	_hud.defender_selected.connect(_on_defender_selected)
 
 	_spawn_timer = Timer.new()
-	_spawn_timer.wait_time = SPAWN_INTERVAL
+	_spawn_timer.wait_time = spawn_interval
 	_spawn_timer.timeout.connect(_on_spawn)
 	add_child(_spawn_timer)
 	_spawn_timer.start()
@@ -69,6 +73,21 @@ func _ready() -> void:
 	_refresh_hud()
 	_update_cursor()
 	_on_spawn()  # send one robot right away so there's immediate action
+
+## Reads the current stage from GameState (default 1) and scales difficulty:
+## faster spawns, tougher/faster robots, and the kill target from StageRules.
+func _configure_for_stage() -> void:
+	var gs := _game_state()
+	stage_number = gs.current_stage if gs != null else 1
+	var needed := StageRules.kills_to_advance(stage_number)
+	spawn_interval = maxf(2.5, BASE_SPAWN_INTERVAL - float(stage_number - 1) * 1.5)
+	max_spawns = 9999 if needed < 0 else needed + 3  # endless stages never run out
+	robot_def = Units.ROBOT.duplicate()
+	robot_def.hp = int(Units.ROBOT.hp) + (stage_number - 1) * 20
+	robot_def.speed = float(Units.ROBOT.speed) + float(stage_number - 1) * 10.0
+
+func _game_state() -> Node:
+	return get_node_or_null("/root/GameState")
 
 # --- World layout -----------------------------------------------------------
 
@@ -176,13 +195,13 @@ func on_robot_reached_base(_robot) -> void:
 # --- Spawning ---------------------------------------------------------------
 
 func _on_spawn() -> void:
-	if game_over or spawned >= MAX_SPAWNS:
+	if game_over or spawned >= max_spawns:
 		return
 	spawned += 1
 	var row := randi() % ROWS
 	var robot = RobotScene.new()
 	add_child(robot)
-	robot.setup(Units.ROBOT, row, self)
+	robot.setup(robot_def, row, self)
 	robot.position = Vector2(FIELD_RIGHT + 60.0, cell_center(row, 0).y)
 	robots.append(robot)
 
@@ -195,7 +214,7 @@ func _on_defender_selected(index: int) -> void:
 
 func _refresh_hud() -> void:
 	_hud.set_coins(economy.coins)
-	_hud.set_kills(kills, StageRules.kills_to_advance(stage_number))
+	_hud.set_kills(stage_number, kills, StageRules.kills_to_advance(stage_number))
 
 # --- Placement & input ------------------------------------------------------
 
@@ -227,6 +246,7 @@ func _select(index: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if game_over:
 		if event.is_action_pressed("ui_accept"):
+			_apply_progression()
 			get_tree().reload_current_scene()
 		return
 	if event.is_action_pressed("ui_left"):
@@ -260,10 +280,22 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _win() -> void:
 	game_over = true
+	_win_pending = true
 	_spawn_timer.stop()
-	_hud.show_banner("YOU WIN!\nPress Enter / A")
+	_hud.show_banner("STAGE %d CLEARED!\nPress Enter / A" % stage_number)
 
 func _lose() -> void:
 	game_over = true
+	_win_pending = false
 	_spawn_timer.stop()
-	_hud.show_banner("GAME OVER\nPress Enter / A")
+	_hud.show_banner("GAME OVER\nStage %d  -  Press Enter / A" % stage_number)
+
+## On the win/lose confirm: advance to the next stage, or reset to Stage 1.
+func _apply_progression() -> void:
+	var gs := _game_state()
+	if gs == null:
+		return
+	if _win_pending:
+		gs.current_stage = stage_number + 1
+	else:
+		gs.reset()

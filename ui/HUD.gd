@@ -55,11 +55,11 @@ func _make_label(text: String, pos: Vector2, size: int) -> Label:
 func set_coins(n: int) -> void:
 	_coin_label.text = "Coins: %d" % n
 
-func set_kills(k: int, needed: int) -> void:
+func set_kills(stage: int, k: int, needed: int) -> void:
 	if needed < 0:
-		_kills_label.text = "Defeated: %d  (endless)" % k
+		_kills_label.text = "Stage %d  -  Defeated: %d  (endless)" % [stage, k]
 	else:
-		_kills_label.text = "Defeated: %d / %d" % [k, needed]
+		_kills_label.text = "Stage %d  -  Defeated: %d / %d" % [stage, k, needed]
 
 func highlight(index: int) -> void:
 	for i in _buttons.size():
