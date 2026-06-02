@@ -176,10 +176,12 @@ func spawn_bullet(from: Vector3, dir: Vector3, dmg: int) -> void:
 	b.setup(dir, dmg, self)
 
 func on_enemy_killed(e) -> void:
+	if not enemies.has(e):
+		return
 	enemies.erase(e)
-	e.queue_free()
 	kills += 1
 	_refresh_hud()
+	e.play_death()  # robot removes itself after the death animation
 	if StageRules.is_stage_won(stage_number, kills):
 		_win()
 
