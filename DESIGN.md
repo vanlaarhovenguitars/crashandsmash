@@ -1,0 +1,66 @@
+# Crash and Smash — Design
+
+The source of truth for game mechanics, captured from a design conversation between Owen
+and his son **Zane**, plus the build roadmap.
+
+## Concept
+
+A lane-defense game in the style of *Plants vs. Zombies*, reskinned for kids:
+
+- Instead of plants vs. zombies, it's **Mr. Beast toys & creatures** defending against
+  advancing **robots**.
+- The player places defenders on a lane grid; defenders auto-attack robots that march in
+  from the right. If a robot reaches the **base** (left edge), the player loses.
+- The player can field a mix of characters: a **toy**, a **creature**, and a **bat**.
+
+## Stages
+
+| Stage | Objective | Notes |
+|-------|-----------|-------|
+| 1 | Defeat **3** robots | Introduces placing units and the economy. |
+| 2 | Defeat **4** enemies | Adds more enemy variety. |
+| 3 | **Endless** — defeat as many as you can | Player freely picks toy / creature / bat. |
+
+These numbers live in code at [`core/StageRules.gd`](core/StageRules.gd) and are covered by
+tests, so they're easy to tune.
+
+## Characters (current prototype)
+
+Defenders and the enemy are defined in [`data/Units.gd`](data/Units.gd):
+
+- **Money Printer** (toy) — generates coins over time (the economy engine).
+- **Beast Toy** — medium-cost shooter.
+- **Creature** — expensive, high-HP wall with a short-range hit.
+- **Bat** — fast, cheap, light shooter (Zane specifically wanted a bat).
+- **Robot** — the enemy: marches left, attacks defenders, ends the game if it reaches base.
+
+All art is currently placeholder colored shapes + labels, so swapping in real sprites later
+is a small, isolated change.
+
+## Platform priority
+
+From the recording, in order:
+
+1. **TV first** — the family's **NVIDIA Shield**, which is **Android TV**. Controls are
+   designed for a gamepad (d-pad cursor + A to place).
+2. **Tablet**
+3. **Phone**
+4. ~~Nintendo Switch~~ — out of scope; it isn't open to sideloading.
+
+Godot exports a single Android `.apk` that covers TV + tablet + phone. See the README for
+the export steps.
+
+## Roadmap (beyond this prototype)
+
+- [ ] Stage 1 playable prototype ← **this milestone**
+- [ ] Main menu + character-select screen
+- [ ] Stage 2 and Stage 3 (endless)
+- [ ] Real art & sound to replace placeholders
+- [ ] Save/restore progress between stages (the `GameState` autoload is the hook for this)
+- [ ] Produce and sign the Android APK; test on the Shield with a controller
+
+## A note on the "Mr. Beast" theme
+
+This is a personal, non-commercial project for the family. If it's ever shared publicly,
+the character names/art should be changed to original ones to avoid using someone else's
+brand — the code reads all names and art from `data/Units.gd`, so a reskin is trivial.

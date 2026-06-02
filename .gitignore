@@ -1,0 +1,12 @@
+# Godot 4 imported/cache files
+.godot/
+
+# Export build artifacts
+/build/
+/android/
+*.apk
+*.aab
+
+# OS junk
+.DS_Store
+Thumbs.db
