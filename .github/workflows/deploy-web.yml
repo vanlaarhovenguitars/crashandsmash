@@ -1,0 +1,87 @@
+name: Deploy web build to GitHub Pages
+
+# Builds the Godot game to HTML5 and publishes it to GitHub Pages on every push,
+# so the latest version is always playable in a phone/desktop browser at the Pages URL.
+# One-time setup in the repo: make the repo Public, then Settings -> Pages ->
+# "Build and deployment" -> Source -> "GitHub Actions".
+
+on:
+  push:
+    branches:
+      - claude/mr-beast-game-mechanics-gGc0u
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: "4.3-stable"
+
+jobs:
+  build:
+    name: Export web build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache export templates
+        id: tpl-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/godot/export_templates/4.3.stable
+          key: godot-export-templates-${{ env.GODOT_VERSION }}
+
+      - name: Install Godot
+        run: |
+          set -e
+          url="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          curl -fsSL -o godot.zip "$url"
+          unzip -q godot.zip
+          chmod +x "Godot_v${GODOT_VERSION}_linux.x86_64"
+          sudo mv "Godot_v${GODOT_VERSION}_linux.x86_64" /usr/local/bin/godot
+
+      - name: Install export templates
+        if: steps.tpl-cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          url="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          curl -fsSL -o templates.tpz "$url"
+          mkdir -p ~/.local/share/godot/export_templates/4.3.stable
+          unzip -q templates.tpz -d tpl_extract
+          mv tpl_extract/templates/* ~/.local/share/godot/export_templates/4.3.stable/
+
+      - name: Export Web build
+        run: |
+          set -e
+          mkdir -p build/web
+          # Import resources first (fresh checkout has no .godot cache).
+          godot --headless --import || true
+          godot --headless --export-release "Web" build/web/index.html
+          # Disable Jekyll so GitHub Pages serves the files verbatim.
+          touch build/web/.nojekyll
+          ls -la build/web
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

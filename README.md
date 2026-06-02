@@ -43,6 +43,20 @@ godot --headless --script res://tests/integration_test.gd   # full gameplay loop
 
 Each prints `PASS:`/`FAIL:` per check and exits non-zero if anything fails.
 
+## Play on your phone (instant, no install)
+
+Every push auto-builds a web version and publishes it to **GitHub Pages**, so the latest
+game is always playable in a phone or desktop browser — just open the link and tap to play.
+
+**One-time setup (two clicks in the repo on github.com):**
+1. **Settings → General → Danger Zone → Change repository visibility → Public.**
+   (GitHub Pages is free only for public repos.)
+2. **Settings → Pages → Build and deployment → Source → "GitHub Actions".**
+
+After that, the URL is shown at **Settings → Pages** (and on each successful
+"Deploy web build to GitHub Pages" run under the **Actions** tab). Bookmark it on the phone.
+Rotate the phone to **landscape** for the best fit.
+
 ## Next: get it on the NVIDIA Shield (Android TV)
 
 Once you're happy with the gameplay, export an Android app:
