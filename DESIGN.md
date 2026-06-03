@@ -58,8 +58,9 @@ the export steps.
       joystick, robots, health, and the same stage rules. Now the default scene.
 - [x] 3D: enemies styled after MrBeast Lab "Swarms" mini-monsters — blobby, big-eyed beasts
       in random colours with random features (horns/antennae/spikes/fins): fast "swarmlings"
-      and big "brutes", each with walk/hop, attack lunge, hit-flash, and death-burst animations;
-      plus a nicer arena (sky, checkerboard floor, scenery)
+      and big "brutes", each with walk/hop, attack lunge, hit-flash, and death-burst animations
+- [x] 3D: rounder characters (capsule limbs, spherical heads/bodies), a bigger arena, and
+      terrain — trees, rocks, bushes, and gentle mounds — plus sky + checkerboard floor
 - [ ] 3D: real rigged character models + mocap animations (free from Mixamo/Quaternius/Kenney)
 - [ ] 3D: manual aim option (twin-stick / gamepad right stick) for older players
 - [ ] 3D: more enemy types, obstacles, pickups, and bigger levels

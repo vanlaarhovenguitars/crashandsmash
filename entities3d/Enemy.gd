@@ -66,7 +66,9 @@ func setup(_kind: String, hp_mult: float, dmg_add: int, _arena, _player) -> void
 func _mat(c: Color) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = c
-	m.roughness = 0.6
+	m.roughness = 0.5
+	m.rim_enabled = true
+	m.rim = 0.4
 	return m
 
 func _box(parent: Node3D, size: Vector3, pos: Vector3, c: Color) -> MeshInstance3D:
@@ -74,6 +76,17 @@ func _box(parent: Node3D, size: Vector3, pos: Vector3, c: Color) -> MeshInstance
 	var bm := BoxMesh.new()
 	bm.size = size
 	mi.mesh = bm
+	mi.position = pos
+	mi.material_override = _mat(c)
+	parent.add_child(mi)
+	return mi
+
+func _capsule(parent: Node3D, radius: float, height: float, pos: Vector3, c: Color) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var cm := CapsuleMesh.new()
+	cm.radius = radius
+	cm.height = height
+	mi.mesh = cm
 	mi.position = pos
 	mi.material_override = _mat(c)
 	parent.add_child(mi)
@@ -160,13 +173,13 @@ func _build_swarmling() -> void:
 	_add_top_feature(1.08, dark)
 
 	_l_arm = _pivot(_body, Vector3(-0.5, 0.78, 0))
-	_box(_l_arm, Vector3(0.16, 0.4, 0.16), Vector3(0, -0.2, 0), dark)
+	_capsule(_l_arm, 0.1, 0.42, Vector3(0, -0.2, 0), dark)
 	_r_arm = _pivot(_body, Vector3(0.5, 0.78, 0))
-	_box(_r_arm, Vector3(0.16, 0.4, 0.16), Vector3(0, -0.2, 0), dark)
+	_capsule(_r_arm, 0.1, 0.42, Vector3(0, -0.2, 0), dark)
 	_l_leg = _pivot(_body, Vector3(-0.2, 0.34, 0))
-	_box(_l_leg, Vector3(0.2, 0.34, 0.2), Vector3(0, -0.17, 0), dark)
+	_capsule(_l_leg, 0.12, 0.36, Vector3(0, -0.17, 0), dark)
 	_r_leg = _pivot(_body, Vector3(0.2, 0.34, 0))
-	_box(_r_leg, Vector3(0.2, 0.34, 0.2), Vector3(0, -0.17, 0), dark)
+	_capsule(_r_leg, 0.12, 0.36, Vector3(0, -0.17, 0), dark)
 
 func _build_brute() -> void:
 	var col: Color = BODY_COLORS[randi() % BODY_COLORS.size()]
@@ -189,13 +202,13 @@ func _build_brute() -> void:
 	_box(_jaw, Vector3(0.56, 0.13, 0.28), Vector3(0, -0.05, -0.1), dark)
 
 	_l_arm = _pivot(_body, Vector3(-0.68, 1.22, 0))
-	_box(_l_arm, Vector3(0.26, 0.64, 0.26), Vector3(0, -0.32, 0), dark)
+	_capsule(_l_arm, 0.15, 0.66, Vector3(0, -0.32, 0), dark)
 	_r_arm = _pivot(_body, Vector3(0.68, 1.22, 0))
-	_box(_r_arm, Vector3(0.26, 0.64, 0.26), Vector3(0, -0.32, 0), dark)
+	_capsule(_r_arm, 0.15, 0.66, Vector3(0, -0.32, 0), dark)
 	_l_leg = _pivot(_body, Vector3(-0.3, 0.52, 0))
-	_box(_l_leg, Vector3(0.32, 0.52, 0.32), Vector3(0, -0.26, 0), dark)
+	_capsule(_l_leg, 0.17, 0.54, Vector3(0, -0.26, 0), dark)
 	_r_leg = _pivot(_body, Vector3(0.3, 0.52, 0))
-	_box(_r_leg, Vector3(0.32, 0.52, 0.32), Vector3(0, -0.26, 0), dark)
+	_capsule(_r_leg, 0.17, 0.54, Vector3(0, -0.26, 0), dark)
 
 # --- Update -----------------------------------------------------------------
 

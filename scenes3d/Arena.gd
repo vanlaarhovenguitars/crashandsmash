@@ -10,9 +10,9 @@ const EnemyScript := preload("res://entities3d/Enemy.gd")
 const BulletScript := preload("res://entities3d/Bullet.gd")
 const HUDScript := preload("res://ui3d/HUD3D.gd")
 
-const ARENA_HALF := 19.0
+const ARENA_HALF := 28.0
 const BASE_SPAWN_INTERVAL := 2.5
-const CAM_OFFSET := Vector3(0, 15, 13)
+const CAM_OFFSET := Vector3(0, 20, 17)
 
 var stage_number := 1
 var kills := 0
@@ -97,7 +97,7 @@ func _build_world() -> void:
 	floor_body.add_child(floor_col)
 	var light_tile := _mat(Color(0.32, 0.56, 0.36))
 	var dark_tile := _mat(Color(0.26, 0.48, 0.31))
-	var tiles := 6
+	var tiles := 8
 	var tile := (ARENA_HALF * 2.0) / float(tiles)
 	for ix in tiles:
 		for iz in tiles:
@@ -114,6 +114,7 @@ func _build_world() -> void:
 	_build_wall(Vector3(-ARENA_HALF, 1, 0), Vector3(1, 3, ARENA_HALF * 2.0))
 	_build_wall(Vector3(ARENA_HALF, 1, 0), Vector3(1, 3, ARENA_HALF * 2.0))
 	_build_decorations()
+	_build_terrain()
 
 func _mat(c: Color) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
@@ -148,6 +149,93 @@ func _build_decorations() -> void:
 			post.position = Vector3(cx * (ARENA_HALF - 0.6), 2.0, cz * (ARENA_HALF - 0.6))
 			post.material_override = _mat(Color(0.85, 0.85, 0.9))
 			add_child(post)
+
+## Adds terrain: gentle mounds, bushes, rocks, and trees scattered around the field.
+## Trees and big rocks get collision so the player weaves around them; small props are visual.
+func _build_terrain() -> void:
+	# Gentle grassy mounds (flattened domes, visual only).
+	for i in 4:
+		var p := _scatter(8.0)
+		var r := randf_range(3.0, 5.0)
+		var dome := _new_sphere(r, _mat(Color(0.3, 0.54, 0.36).lightened(randf() * 0.08)))
+		dome.position = Vector3(p.x, -0.1, p.z)
+		dome.scale = Vector3(1.0, randf_range(0.12, 0.2), 1.0)
+		add_child(dome)
+	# Bushes (clusters of green spheres, visual only).
+	for i in 8:
+		var bp := _scatter(6.0)
+		var bush := Node3D.new()
+		bush.position = Vector3(bp.x, 0.0, bp.z)
+		add_child(bush)
+		var bcol := Color(0.2, 0.45, 0.22).lightened(randf() * 0.15)
+		for j in 3:
+			var blob := _new_sphere(randf_range(0.5, 0.8), _mat(bcol))
+			blob.position = Vector3(randf_range(-0.4, 0.4), randf_range(0.4, 0.7), randf_range(-0.4, 0.4))
+			bush.add_child(blob)
+	# Rocks (grey, some with collision).
+	for i in 6:
+		var rp := _scatter(6.0)
+		var rs := randf_range(0.7, 1.8)
+		var rock := _new_sphere(rs, _mat(Color(0.5, 0.5, 0.55).darkened(randf() * 0.2)))
+		rock.scale = Vector3(1.0, randf_range(0.6, 0.9), 1.0)
+		if rs > 1.2:
+			var body := StaticBody3D.new()
+			body.position = Vector3(rp.x, rs * 0.4, rp.z)
+			var cs := CollisionShape3D.new()
+			var sp := SphereShape3D.new()
+			sp.radius = rs * 0.8
+			cs.shape = sp
+			body.add_child(cs)
+			body.add_child(rock)
+			add_child(body)
+		else:
+			rock.position = Vector3(rp.x, rs * 0.4, rp.z)
+			add_child(rock)
+	# Trees (trunk + foliage, with collision on the trunk).
+	for i in 7:
+		var tp := _scatter(7.0)
+		_build_tree(Vector3(tp.x, 0.0, tp.z), randf_range(0.85, 1.3))
+
+func _new_sphere(radius: float, mat: StandardMaterial3D) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var sm := SphereMesh.new()
+	sm.radius = radius
+	sm.height = radius * 2.0
+	mi.mesh = sm
+	mi.material_override = mat
+	return mi
+
+## Returns a random point at least `min_center` from the middle (player spawn) and inside the walls.
+func _scatter(min_center: float) -> Vector3:
+	var ang := randf() * TAU
+	var d := randf_range(min_center, ARENA_HALF - 3.0)
+	return Vector3(cos(ang) * d, 0.0, sin(ang) * d)
+
+func _build_tree(pos: Vector3, s: float) -> void:
+	var body := StaticBody3D.new()
+	body.position = pos
+	add_child(body)
+	var trunk := MeshInstance3D.new()
+	var tm := CylinderMesh.new()
+	tm.top_radius = 0.22 * s
+	tm.bottom_radius = 0.28 * s
+	tm.height = 1.8 * s
+	trunk.mesh = tm
+	trunk.position = Vector3(0, 0.9 * s, 0)
+	trunk.material_override = _mat(Color(0.45, 0.3, 0.18))
+	body.add_child(trunk)
+	var cs := CollisionShape3D.new()
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.3 * s
+	cap.height = 1.8 * s
+	cs.shape = cap
+	cs.position = Vector3(0, 0.9 * s, 0)
+	body.add_child(cs)
+	var leaf := Color(0.22, 0.5, 0.24).lightened(randf() * 0.12)
+	for j in 3:
+		var blob := _new_sphere(randf_range(0.9, 1.2) * s, _mat(leaf))
+		blob.position = Vector3(randf_range(-0.4, 0.4) * s, (2.0 + j * 0.5) * s, randf_range(-0.4, 0.4) * s)
+		body.add_child(blob)
 
 func _build_wall(pos: Vector3, size: Vector3) -> void:
 	var body := StaticBody3D.new()
