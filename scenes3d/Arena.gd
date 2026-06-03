@@ -195,7 +195,7 @@ func _on_spawn() -> void:
 	spawned += 1
 	var ang := randf() * TAU
 	var r := ARENA_HALF - 2.5
-	var kind := "creature" if randf() < 0.35 else "toy"
+	var kind := "brute" if randf() < 0.3 else "swarmling"
 	var enemy = EnemyScript.new()
 	add_child(enemy)
 	enemy.global_position = Vector3(cos(ang) * r, 0.1, sin(ang) * r)

@@ -16,7 +16,8 @@ There are **two modes** in the repo:
 ## How to play the 3D Arena
 - **Move:** WASD / left stick / left-side touch joystick (drag anywhere on the left half).
 - **Shooting is automatic** — your hero locks onto the nearest robot and fires. Just steer!
-- **Enemies:** **wind-up toys** (fast, weak) and **creatures** (slow, tough) — each animated.
+- **Enemies:** MrBeast-Lab-style **mini-monsters** — small fast **swarmlings** (random colours,
+  eyes, horns/antennae/spikes/fins) and big tough **brutes** — each animated.
 - **Goal:** defeat 3 to clear Stage 1 (it gets harder each stage; Stage 3 is endless).
 - Win/lose, then **tap / Enter / gamepad A** to continue.
 
