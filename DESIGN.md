@@ -56,7 +56,9 @@ the export steps.
 - [x] Stage progression 1 → 2 → 3 with scaling difficulty (win advances; lose resets)
 - [x] 3D Arena mode — walk-around shooter (Garden Warfare–style) with auto-aim, touch
       joystick, robots, health, and the same stage rules. Now the default scene.
-- [ ] 3D: real character/robot models + animations (free rigged characters from Mixamo/Kenney)
+- [x] 3D: themed enemies — wind-up **toys** and horned **creatures**, each with walk, attack,
+      hit-flash, and death-burst animations; plus a nicer arena (sky, checkerboard floor, scenery)
+- [ ] 3D: real rigged character models + mocap animations (free from Mixamo/Quaternius/Kenney)
 - [ ] 3D: manual aim option (twin-stick / gamepad right stick) for older players
 - [ ] 3D: more enemy types, obstacles, pickups, and bigger levels
 - [ ] Main menu + character-select screen

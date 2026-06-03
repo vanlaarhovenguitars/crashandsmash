@@ -6,7 +6,7 @@ A kids' action game built in **Godot 4**, running from one codebase on the famil
 There are **two modes** in the repo:
 
 - **🕹️ 3D Arena (current default)** — a walk-around 3D shooter (Garden Warfare–style): run
-  around an arena, robots chase you, and your hero auto-aims and shoots them. Defeat 3 to
+  around an arena, Mr. Beast toys & creatures chase you, and your hero auto-aims and shoots them. Defeat 3 to
   clear Stage 1. This is what the main scene / phone link launches.
 - **🌱 2D Lane Defense** — the original *Plants vs. Zombies*–style game: place toys/creatures
   on lanes to stop advancing robots. Still in the repo at `scenes/Main.tscn`.
@@ -16,7 +16,8 @@ There are **two modes** in the repo:
 ## How to play the 3D Arena
 - **Move:** WASD / left stick / left-side touch joystick (drag anywhere on the left half).
 - **Shooting is automatic** — your hero locks onto the nearest robot and fires. Just steer!
-- **Goal:** defeat 3 robots to clear Stage 1 (it gets harder each stage; Stage 3 is endless).
+- **Enemies:** **wind-up toys** (fast, weak) and **creatures** (slow, tough) — each animated.
+- **Goal:** defeat 3 to clear Stage 1 (it gets harder each stage; Stage 3 is endless).
 - Win/lose, then **tap / Enter / gamepad A** to continue.
 
 ## Play it (on your computer)
