@@ -9,6 +9,7 @@ const PlayerScript := preload("res://entities3d/Player.gd")
 const EnemyScript := preload("res://entities3d/Enemy.gd")
 const BulletScript := preload("res://entities3d/Bullet.gd")
 const HUDScript := preload("res://ui3d/HUD3D.gd")
+const SceneDress := preload("res://scenes3d/SceneDress.gd")
 
 const ARENA_HALF := 28.0
 const BASE_SPAWN_INTERVAL := 2.5
@@ -41,7 +42,7 @@ func _ready() -> void:
 	add_child(hud)
 	hud.arena = self
 	player.hud = hud
-	hud.set_health(player.hp, 100)
+	hud.set_health(player.hp, player.max_hp)
 	_refresh_hud()
 
 	_spawn_timer = Timer.new()
@@ -63,30 +64,10 @@ func _configure_for_stage() -> void:
 # --- World ------------------------------------------------------------------
 
 func _build_world() -> void:
-	var env := WorldEnvironment.new()
-	var e := Environment.new()
-	e.background_mode = Environment.BG_SKY
-	var sky := Sky.new()
-	var psm := ProceduralSkyMaterial.new()
-	psm.sky_top_color = Color(0.32, 0.52, 0.9)
-	psm.sky_horizon_color = Color(0.75, 0.83, 0.93)
-	psm.ground_horizon_color = Color(0.75, 0.83, 0.93)
-	psm.ground_bottom_color = Color(0.45, 0.52, 0.5)
-	sky.sky_material = psm
-	e.sky = sky
-	e.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	e.ambient_light_energy = 0.45
-	env.environment = e
-	add_child(env)
+	SceneDress.apply_environment(self)
+	SceneDress.add_clouds(self, 9, ARENA_HALF + 18.0)
 
-	var sun := DirectionalLight3D.new()
-	sun.rotation = Vector3(deg_to_rad(-52), deg_to_rad(-50), 0)
-	sun.light_energy = 1.2
-	sun.light_color = Color(1.0, 0.97, 0.9)
-	sun.shadow_enabled = true
-	add_child(sun)
-
-	# Two-tone checkerboard floor for a nicer look.
+	# Grass ground: textured plane for looks + an invisible box for collision.
 	var floor_body := StaticBody3D.new()
 	add_child(floor_body)
 	var floor_col := CollisionShape3D.new()
@@ -95,19 +76,20 @@ func _build_world() -> void:
 	floor_col.shape = fbs
 	floor_col.position = Vector3(0, -0.5, 0)
 	floor_body.add_child(floor_col)
-	var light_tile := _mat(Color(0.32, 0.56, 0.36))
-	var dark_tile := _mat(Color(0.26, 0.48, 0.31))
-	var tiles := 8
-	var tile := (ARENA_HALF * 2.0) / float(tiles)
-	for ix in tiles:
-		for iz in tiles:
-			var t := MeshInstance3D.new()
-			var bm := BoxMesh.new()
-			bm.size = Vector3(tile, 1.0, tile)
-			t.mesh = bm
-			t.position = Vector3(-ARENA_HALF + (ix + 0.5) * tile, -0.5, -ARENA_HALF + (iz + 0.5) * tile)
-			t.material_override = light_tile if (ix + iz) % 2 == 0 else dark_tile
-			floor_body.add_child(t)
+	var ground := MeshInstance3D.new()
+	var pm := PlaneMesh.new()
+	pm.size = Vector2(ARENA_HALF * 2.0, ARENA_HALF * 2.0)
+	ground.mesh = pm
+	ground.material_override = SceneDress.make_grass_material()
+	floor_body.add_child(ground)
+	# A wider "outfield" plane beyond the walls so the world doesn't end at the fence.
+	var outfield := MeshInstance3D.new()
+	var opm := PlaneMesh.new()
+	opm.size = Vector2(ARENA_HALF * 7.0, ARENA_HALF * 7.0)
+	outfield.mesh = opm
+	outfield.position.y = -0.05
+	outfield.material_override = SceneDress.make_grass_material()
+	add_child(outfield)
 
 	_build_wall(Vector3(0, 1, -ARENA_HALF), Vector3(ARENA_HALF * 2.0, 3, 1))
 	_build_wall(Vector3(0, 1, ARENA_HALF), Vector3(ARENA_HALF * 2.0, 3, 1))
@@ -115,6 +97,53 @@ func _build_world() -> void:
 	_build_wall(Vector3(ARENA_HALF, 1, 0), Vector3(1, 3, ARENA_HALF * 2.0))
 	_build_decorations()
 	_build_terrain()
+	_build_flora()
+
+## Grass tufts and little flowers scattered around (visual only, no shadows for speed).
+func _build_flora() -> void:
+	var tuft_mat := _mat(Color(0.2, 0.42, 0.2))
+	for i in 26:
+		var p := _scatter(3.0)
+		var tuft := Node3D.new()
+		tuft.position = p
+		add_child(tuft)
+		for j in 3:
+			var blade := MeshInstance3D.new()
+			var cm := CylinderMesh.new()
+			cm.top_radius = 0.0
+			cm.bottom_radius = 0.05
+			cm.height = randf_range(0.25, 0.45)
+			blade.mesh = cm
+			blade.material_override = tuft_mat
+			blade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			blade.position = Vector3(randf_range(-0.15, 0.15), cm.height * 0.5, randf_range(-0.15, 0.15))
+			blade.rotation.z = randf_range(-0.25, 0.25)
+			tuft.add_child(blade)
+	var petal_colors := [Color(1.0, 0.5, 0.6), Color(1.0, 0.85, 0.3), Color(0.7, 0.6, 1.0), Color(1.0, 1.0, 1.0)]
+	for i in 14:
+		var fp := _scatter(3.0)
+		var flower := Node3D.new()
+		flower.position = fp
+		add_child(flower)
+		var stem := MeshInstance3D.new()
+		var sm := CylinderMesh.new()
+		sm.top_radius = 0.02
+		sm.bottom_radius = 0.02
+		sm.height = 0.3
+		stem.mesh = sm
+		stem.position = Vector3(0, 0.15, 0)
+		stem.material_override = _mat(Color(0.25, 0.5, 0.25))
+		stem.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		flower.add_child(stem)
+		var head := MeshInstance3D.new()
+		var hm := SphereMesh.new()
+		hm.radius = 0.08
+		hm.height = 0.16
+		head.mesh = hm
+		head.position = Vector3(0, 0.34, 0)
+		head.material_override = _mat(petal_colors[randi() % petal_colors.size()])
+		head.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		flower.add_child(head)
 
 func _mat(c: Color) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
@@ -157,7 +186,7 @@ func _build_terrain() -> void:
 	for i in 4:
 		var p := _scatter(8.0)
 		var r := randf_range(3.0, 5.0)
-		var dome := _new_sphere(r, _mat(Color(0.3, 0.54, 0.36).lightened(randf() * 0.08)))
+		var dome := _new_sphere(r, _mat(Color(0.22, 0.46, 0.24).lightened(randf() * 0.06)))
 		dome.position = Vector3(p.x, -0.1, p.z)
 		dome.scale = Vector3(1.0, randf_range(0.12, 0.2), 1.0)
 		add_child(dome)
@@ -231,7 +260,7 @@ func _build_tree(pos: Vector3, s: float) -> void:
 	cs.shape = cap
 	cs.position = Vector3(0, 0.9 * s, 0)
 	body.add_child(cs)
-	var leaf := Color(0.22, 0.5, 0.24).lightened(randf() * 0.12)
+	var leaf := Color(0.16, 0.42, 0.18).lightened(randf() * 0.1)
 	for j in 3:
 		var blob := _new_sphere(randf_range(0.9, 1.2) * s, _mat(leaf))
 		blob.position = Vector3(randf_range(-0.4, 0.4) * s, (2.0 + j * 0.5) * s, randf_range(-0.4, 0.4) * s)
@@ -306,14 +335,44 @@ func bullet_hit_check(pos: Vector3, radius: float):
 			return e
 	return null
 
-func spawn_bullet(from: Vector3, dir: Vector3, dmg: int) -> void:
+func spawn_bullet(from: Vector3, dir: Vector3, dmg: int, color: Color) -> void:
 	var b = BulletScript.new()
 	add_child(b)
 	b.global_position = from
-	b.setup(dir, dmg, self)
+	b.setup(dir, dmg, self, color)
 
-## A short burst of coloured cubes flung outward when an enemy is defeated.
+## A quick one-shot spray of glowing sparks where a bullet lands.
+func spawn_hit_sparks(pos: Vector3, color: Color) -> void:
+	var p := CPUParticles3D.new()
+	p.one_shot = true
+	p.amount = 10
+	p.lifetime = 0.35
+	p.explosiveness = 1.0
+	p.direction = Vector3.UP
+	p.spread = 80.0
+	p.initial_velocity_min = 3.0
+	p.initial_velocity_max = 6.0
+	p.gravity = Vector3(0, -14, 0)
+	p.scale_amount_min = 0.5
+	p.scale_amount_max = 1.0
+	var sm := SphereMesh.new()
+	sm.radius = 0.07
+	sm.height = 0.14
+	p.mesh = sm
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.emission_enabled = true
+	mat.emission = color
+	mat.emission_energy_multiplier = 2.0
+	p.mesh.material = mat
+	add_child(p)
+	p.global_position = pos
+	p.emitting = true
+	get_tree().create_timer(0.8).timeout.connect(p.queue_free)
+
+## A short burst of coloured cubes + sparks flung outward when an enemy is defeated.
 func spawn_burst(pos: Vector3, color: Color) -> void:
+	spawn_hit_sparks(pos, color)
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = color
 	for i in 8:
@@ -362,17 +421,21 @@ func _lose() -> void:
 	_spawn_timer.stop()
 	hud.show_banner("GAME OVER\nStage %d  -  Tap / Enter / A" % stage_number)
 
-## Called on win/lose confirm (tap, Enter, or gamepad A): advance or reset, then reload.
+## Called on win/lose confirm (tap, Enter, or gamepad A). Winning advances to the next
+## stage; losing resets and returns to the character-select screen so Zane can pick a
+## different hero for the next try.
 func confirm_restart() -> void:
 	if not game_over:
 		return
 	var gs := get_node_or_null("/root/GameState")
-	if gs != null:
-		if _win_pending:
+	if _win_pending:
+		if gs != null:
 			gs.current_stage = stage_number + 1
-		else:
+		get_tree().reload_current_scene()
+	else:
+		if gs != null:
 			gs.reset()
-	get_tree().reload_current_scene()
+		get_tree().change_scene_to_file("res://scenes3d/CharacterSelect.tscn")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if game_over and event.is_action_pressed("ui_accept"):

@@ -14,12 +14,15 @@ There are **two modes** in the repo:
 > See [`DESIGN.md`](DESIGN.md) for the full design (from the recording with Zane) and roadmap.
 
 ## How to play the 3D Arena
+- **Pick your hero** on the select screen — **Bat** (fast, rapid weak shots, hovers),
+  **Beast Toy** (balanced blaster hero), or **Creature** (slow tank, huge hits).
+  Tap one, or use ← → + Enter / gamepad A.
 - **Move:** WASD / left stick / left-side touch joystick (drag anywhere on the left half).
-- **Shooting is automatic** — your hero locks onto the nearest robot and fires. Just steer!
+- **Shooting is automatic** — your hero locks onto the nearest enemy and fires. Just steer!
 - **Enemies:** MrBeast-Lab-style **mini-monsters** — small fast **swarmlings** (random colours,
   eyes, horns/antennae/spikes/fins) and big tough **brutes** — each animated.
 - **Goal:** defeat 3 to clear Stage 1 (it gets harder each stage; Stage 3 is endless).
-- Win/lose, then **tap / Enter / gamepad A** to continue.
+- Win → next stage. Lose → back to hero select for another try.
 
 ## Play it (on your computer)
 

@@ -60,7 +60,12 @@ the export steps.
       in random colours with random features (horns/antennae/spikes/fins): fast "swarmlings"
       and big "brutes", each with walk/hop, attack lunge, hit-flash, and death-burst animations
 - [x] 3D: rounder characters (capsule limbs, spherical heads/bodies), a bigger arena, and
-      terrain — trees, rocks, bushes, and gentle mounds — plus sky + checkerboard floor
+      terrain — trees, rocks, bushes, and gentle mounds
+- [x] Character select (from Zane's notes: "you can be a bat, a Mr. Beast toy or a creature")
+      — three playable heroes with different stats, looks, and animations; losing returns to
+      the select screen
+- [x] Graphics pass: filmic tonemapping, glow on muzzle flashes/shots, depth fog, textured
+      grass ground, clouds, grass tufts & flowers, per-hero coloured projectiles, hit sparks
 - [ ] 3D: real rigged character models + mocap animations (free from Mixamo/Quaternius/Kenney)
 - [ ] 3D: manual aim option (twin-stick / gamepad right stick) for older players
 - [ ] 3D: more enemy types, obstacles, pickups, and bigger levels

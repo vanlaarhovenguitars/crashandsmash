@@ -5,6 +5,7 @@ extends Node
 
 var current_stage: int = 1
 var total_kills: int = 0
+var selected_hero: String = "beast_toy"  # set by the character-select screen
 
 func reset() -> void:
 	current_stage = 1
